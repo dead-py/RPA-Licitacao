@@ -5,8 +5,6 @@ import zipfile as z
 import pandas as pd
 
 
-# ---------------------------------------------
-# 1- Abre o navegador e navega até a página de download do .zip
 def baixa_csv_licitacoes(
         url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul'):
     r.init()
@@ -25,16 +23,12 @@ def baixa_csv_licitacoes(
     r.close()
 
 
-# ---------------------------------------------
-# 2-  Remove os arquivos csv desnecessários
 def remove_temp(diretorio='C:\\Users\\jayme\\PycharmProjects\\Wind'):
     for file in os.listdir(diretorio):
         if file.endswith('.csv') and file not in ('item.csv', 'licitacao.csv'):
             os.remove(diretorio + '\\' + file)
 
 
-# ---------------------------------------------
-# 3- Filtrar licitacoes.csv com DT_ABERTURA > 01/05/2022
 def filtra_csv(arquivo='licitacao.csv',
                nome_temp_csv='licitacoes_temp_2022.csv'):
     licitacao = pd.read_csv(arquivo,
@@ -43,8 +37,6 @@ def filtra_csv(arquivo='licitacao.csv',
     dados_listados.to_csv(nome_temp_csv, index=False)
 
 
-# ---------------------------------------------
-# 4- Criar diretórios com a estrutura [CD_ORGAO - CD_TIPO_MODALIDADE - NR_LICITACAO - ANO_LICITACAO]
 def cria_diretorios(dir="C:\\Users\\jayme\\PycharmProjects\\Wind\\LICITACAO_2022"):
     diretorio_pai = dir
 
@@ -96,20 +88,11 @@ def cria_diretorios(dir="C:\\Users\\jayme\\PycharmProjects\\Wind\\LICITACAO_2022
             cria_txt_link(diretorio_licitacao, link_licitacao)
 
 
-# ---------------------------------------------
-# 5 – Criar arquivo link.txt com a informação da coluna
-# LINK_LICITACON_CIDADAO do item respectivo com base no arquivo licitacoes.csv.
-
 def cria_txt_link(path=r'C:\Users\jayme\PycharmProjects\Wind\LICITACAO_2022', url='www.google.com'):
     path = path + r'\link.txt'
     with open(path, 'a') as file:
         file.write(url)
 
-
-# ---------------------------------------------
-# 6 – Criar arquivo itens-licitacao.csv
-# dentro do diretório da licitação respectiva com os itens da licitação com base no arquivo item.csv. Combinar
-# CD_ORGAO, NR_LICITACAO, ANO_LICITACAO, CD_TIPO_MODALIDADE para retornar os itens da licitação.
 
 def filtra_item(arquivo='item.csv',
                 cd_orgao='1',
@@ -127,8 +110,8 @@ def filtra_item(arquivo='item.csv',
     dados_listados.to_csv(diretorio + '\\itens-licitacao.csv', index=False)
 
 
-#baixa_csv_licitacoes()  # 1
-# remove_temp()  # 2
-# filtra_csv()  # 3
-cria_diretorios()  # 4
+baixa_csv_licitacoes()  # 1
+remove_temp()           # 2
+filtra_csv()            # 3
+cria_diretorios()       # 4
 
