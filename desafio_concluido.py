@@ -130,6 +130,6 @@ def filtra_item(arquivo=os.path.dirname(__file__) + '\\zip_ref\\item.csv',
 if __name__ == "__main__":
     baixa_csv_licitacoes(os.path.dirname(__file__),
                          url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')
-    remove_temp()  # 2
-    filtra_csv(data_filtro='2022-05-01', quantidade_licitacoes=30)  # 3
-    cria_diretorios()  # 4
+    remove_temp()
+    filtra_csv(data_filtro='2022-05-01', quantidade_licitacoes=30)
+    cria_diretorios()
