@@ -5,11 +5,10 @@ import zipfile as z
 import pandas as pd
 
 
-# 1- Acessa o link de licitações e baixa o zip.
 def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
                          url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul'):
-    print(script_dir)
-    r.init()
+    print("Baixando .zip da licitação...")
+    r.init(visual_automation=True)
     r.url(url)
     janela = p.getActiveWindow()
     janela.maximize()
@@ -26,11 +25,9 @@ def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
     with z.ZipFile(script_dir + "\\2022.csv.zip", 'r') as zip_ref:  # Extrai o .zip
         zip_ref.extractall(script_dir + '\\zip_ref')
 
+    os.remove(script_dir + "\\2022.csv.zip")
 
 
-
-
-# 2- Remove arquivos desnecessários que haviam no zip.
 def remove_temp(diretorio=os.path.dirname(__file__) + '\\zip_ref'):
     print("Removendo arquivos temporários...")
     for file in os.listdir(diretorio):
@@ -38,7 +35,6 @@ def remove_temp(diretorio=os.path.dirname(__file__) + '\\zip_ref'):
             os.remove(diretorio + '\\' + file)
 
 
-# 3- Cria outra planilha contendo os dados
 def filtra_csv(arquivo=os.path.dirname(__file__) + '\\zip_ref\\licitacao.csv',
                nome_temp_csv=os.path.dirname(__file__) + '\\zip_ref\\licitacoes_temp_2022.csv'):
     print("Filtrando .csv")
@@ -48,8 +44,8 @@ def filtra_csv(arquivo=os.path.dirname(__file__) + '\\zip_ref\\licitacao.csv',
     dados_listados.to_csv(nome_temp_csv, index=False)
 
 
-def cria_diretorios(dir=os.path.dirname(__file__)):
-    diretorio_pai = dir + '\\LICITACAO_2022\\'
+def cria_diretorios(diretorio=os.path.dirname(__file__)):
+    diretorio_pai = diretorio + '\\LICITACAO_2022\\'
 
     try:
         os.mkdir(diretorio_pai)
@@ -57,7 +53,7 @@ def cria_diretorios(dir=os.path.dirname(__file__)):
     except FileExistsError:
         pass
 
-    df_licitacao_temp = pd.read_csv(dir + '\\zip_ref\\licitacoes_temp_2022.csv',
+    df_licitacao_temp = pd.read_csv(diretorio + '\\zip_ref\\licitacoes_temp_2022.csv',
                                     parse_dates=['DT_ABERTURA'],
                                     usecols=['CD_ORGAO',
                                              'NM_ORGAO',
@@ -85,12 +81,11 @@ def cria_diretorios(dir=os.path.dirname(__file__)):
                 os.mkdir(diretorio_licitacao)
                 print(f"Diretório criado: {diretorio}")
 
-            filtra_item(os.path.dirname(__file__) + '\\zip_ref\\item.csv',
-                        codigo_orgao,
-                        numero_licitacao,
-                        ano_licitacao,
-                        codigo_tipo_mod,
-                        diretorio_licitacao)
+            filtra_item(cd_orgao=codigo_orgao,
+                        nr_licitacao=numero_licitacao,
+                        ano_licitacao=ano_licitacao,
+                        cd_tipo_modalidade=codigo_tipo_mod,
+                        diretorio=diretorio_licitacao)
 
         except Exception as e:
             print(e)
@@ -105,14 +100,14 @@ def cria_txt_link(path=os.path.dirname(__file__) + '\\LICITACAO_2022', url='www.
         file.write(url)
 
 
-def filtra_item(arquivo='item.csv',
+def filtra_item(arquivo=os.path.dirname(__file__) + '\\zip_ref\\item.csv',
                 cd_orgao='1',
                 nr_licitacao=1,
                 ano_licitacao=2000,
                 cd_tipo_modalidade='A',
                 diretorio=os.getcwd() + '\\LICITACAO_2022'):
     print("Filtrando itens da licitação...")
-    print(arquivo)
+
     itens = pd.read_csv(arquivo, low_memory=False)
 
     dados_listados = itens[(itens["CD_ORGAO"] == cd_orgao) &
@@ -123,8 +118,9 @@ def filtra_item(arquivo='item.csv',
     dados_listados.to_csv(diretorio + '\\itens-licitacao.csv', index=False)
 
 
-baixa_csv_licitacoes(
-    url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')  # 1
-remove_temp()  # 2
-filtra_csv()  # 3
-cria_diretorios()  # 4
+if __name__ == "__main__":
+    baixa_csv_licitacoes(os.path.dirname(__file__),
+                         url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')
+    remove_temp()  # 2
+    filtra_csv()  # 3
+    cria_diretorios()  # 4
