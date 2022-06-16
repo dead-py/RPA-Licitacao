@@ -5,6 +5,7 @@ import zipfile as z
 import pandas as pd
 
 
+# Baixa e descompacta o arquivo zip, este sendo excluído após a ação.
 def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
                          url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul'):
     print("Baixando .zip da licitação...")
@@ -22,12 +23,13 @@ def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
     r.wait(15.0)
     r.close()
 
-    with z.ZipFile(script_dir + "\\2022.csv.zip", 'r') as zip_ref:  # Extrai o .zip
+    with z.ZipFile(script_dir + "\\2022.csv.zip", 'r') as zip_ref:
         zip_ref.extractall(script_dir + '\\zip_ref')
 
     os.remove(script_dir + "\\2022.csv.zip")
 
 
+# Remove arquivos desnecessários à geração da filtragem de licitação.
 def remove_temp(diretorio=os.path.dirname(__file__) + '\\zip_ref'):
     print("Removendo arquivos temporários...")
     for file in os.listdir(diretorio):
@@ -35,15 +37,19 @@ def remove_temp(diretorio=os.path.dirname(__file__) + '\\zip_ref'):
             os.remove(diretorio + '\\' + file)
 
 
+# Filtra o arquivo de licitações baseado na data e na quantidade de licitações desejada.
 def filtra_csv(arquivo=os.path.dirname(__file__) + '\\zip_ref\\licitacao.csv',
-               nome_temp_csv=os.path.dirname(__file__) + '\\zip_ref\\licitacoes_temp_2022.csv'):
+               nome_temp_csv=os.path.dirname(__file__) + '\\zip_ref\\licitacoes_temp_2022.csv',
+               data_filtro='2022-05-01',
+               quantidade_licitacoes=30):
     print("Filtrando .csv")
     licitacao = pd.read_csv(arquivo,
                             parse_dates=['DT_ABERTURA'])
-    dados_listados = licitacao[(licitacao["DT_ABERTURA"] > '2022-05-01')].head(30)
+    dados_listados = licitacao[(licitacao["DT_ABERTURA"] > data_filtro)].head(quantidade_licitacoes)
     dados_listados.to_csv(nome_temp_csv, index=False)
 
 
+# Cria os diretórios onde serão armazenados os arquivos de cada licitação.
 def cria_diretorios(diretorio=os.path.dirname(__file__)):
     diretorio_pai = diretorio + '\\LICITACAO_2022\\'
 
@@ -94,12 +100,14 @@ def cria_diretorios(diretorio=os.path.dirname(__file__)):
             cria_txt_link(diretorio_licitacao, link_licitacao)
 
 
+# Gera o txt com o link da licitação.
 def cria_txt_link(path=os.path.dirname(__file__) + '\\LICITACAO_2022', url='www.google.com'):
     path_link = path + r'\link.txt'
     with open(path_link, 'a') as file:
         file.write(url)
 
 
+# Filtra a planilha de itens baseado na planilha de licitações previamente filtrada.
 def filtra_item(arquivo=os.path.dirname(__file__) + '\\zip_ref\\item.csv',
                 cd_orgao='1',
                 nr_licitacao=1,
@@ -118,9 +126,10 @@ def filtra_item(arquivo=os.path.dirname(__file__) + '\\zip_ref\\item.csv',
     dados_listados.to_csv(diretorio + '\\itens-licitacao.csv', index=False)
 
 
+# Execução principal da aplicação.
 if __name__ == "__main__":
     baixa_csv_licitacoes(os.path.dirname(__file__),
                          url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')
     remove_temp()  # 2
-    filtra_csv()  # 3
+    filtra_csv(data_filtro='2022-05-01', quantidade_licitacoes=30)  # 3
     cria_diretorios()  # 4
