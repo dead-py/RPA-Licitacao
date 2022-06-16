@@ -5,6 +5,7 @@ import zipfile as z
 import pandas as pd
 
 
+# 1- Acessa o link de licitações e baixa o zip.
 def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
                          url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul'):
     print(script_dir)
@@ -16,24 +17,28 @@ def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
     r.click('//*[@id="content"]/div[3]/div/article/div/ul/li[2]/div/h3/a')
     r.wait(2.0)
 
-     # Baixa o .zip
+    # Baixa o .zip
     link = r.read('//*[@id="dataset-resources"]/ul/li/div/ul/li[2]/a/@href')
     r.download(link, script_dir + '\\2022.csv.zip')
     r.wait(15.0)
     r.close()
 
-    with z.ZipFile(script_dir +"\\2022.csv.zip", 'r') as zip_ref:  # Extrai o .zip
+    with z.ZipFile(script_dir + "\\2022.csv.zip", 'r') as zip_ref:  # Extrai o .zip
         zip_ref.extractall(script_dir + '\\zip_ref')
-    
 
 
-def remove_temp(diretorio=os.path.dirname(__file__)+'\\zip_ref'):
+
+
+
+# 2- Remove arquivos desnecessários que haviam no zip.
+def remove_temp(diretorio=os.path.dirname(__file__) + '\\zip_ref'):
     print("Removendo arquivos temporários...")
     for file in os.listdir(diretorio):
         if file.endswith('.csv') and file not in ('item.csv', 'licitacao.csv'):
             os.remove(diretorio + '\\' + file)
 
 
+# 3- Cria outra planilha contendo os dados
 def filtra_csv(arquivo=os.path.dirname(__file__) + '\\zip_ref\\licitacao.csv',
                nome_temp_csv=os.path.dirname(__file__) + '\\zip_ref\\licitacoes_temp_2022.csv'):
     print("Filtrando .csv")
@@ -44,7 +49,7 @@ def filtra_csv(arquivo=os.path.dirname(__file__) + '\\zip_ref\\licitacao.csv',
 
 
 def cria_diretorios(dir=os.path.dirname(__file__)):
-    diretorio_pai = dir + '\\' + 'LICITACAO_2022'
+    diretorio_pai = dir + '\\LICITACAO_2022\\'
 
     try:
         os.mkdir(diretorio_pai)
@@ -52,7 +57,7 @@ def cria_diretorios(dir=os.path.dirname(__file__)):
     except FileExistsError:
         pass
 
-    df_licitacao_temp = pd.read_csv('licitacoes_temp_2022.csv',
+    df_licitacao_temp = pd.read_csv(dir + '\\zip_ref\\licitacoes_temp_2022.csv',
                                     parse_dates=['DT_ABERTURA'],
                                     usecols=['CD_ORGAO',
                                              'NM_ORGAO',
@@ -118,8 +123,8 @@ def filtra_item(arquivo='item.csv',
     dados_listados.to_csv(diretorio + '\\itens-licitacao.csv', index=False)
 
 
-baixa_csv_licitacoes('D:\\jayme.silva\\Documents',
-                     'http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')  # 1
-remove_temp()           # 2
-filtra_csv()            # 3
-cria_diretorios()       # 4
+baixa_csv_licitacoes(
+    url='http://dados.tce.rs.gov.br/organization/tribunal-de-contas-do-estado-do-rio-grande-do-sul')  # 1
+remove_temp()  # 2
+filtra_csv()  # 3
+cria_diretorios()  # 4
