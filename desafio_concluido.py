@@ -20,7 +20,6 @@ def baixa_csv_licitacoes(script_dir=os.path.dirname(__file__),
     # Baixa o .zip
     link = r.read('//*[@id="dataset-resources"]/ul/li/div/ul/li[2]/a/@href')
     r.download(link, script_dir + '\\2022.csv.zip')
-    r.wait(15.0)
     r.close()
 
     with z.ZipFile(script_dir + "\\2022.csv.zip", 'r') as zip_ref:
